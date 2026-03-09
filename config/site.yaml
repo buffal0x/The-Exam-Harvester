@@ -1,0 +1,74 @@
+site:
+  name: "NTI Studier"
+  base_url: "https://studier.nti.se"
+  login_url: "https://studier.nti.se"
+  start_url: "https://studier.nti.se/studentcourses/3207194/exams"
+
+auth:
+  username_env: "SCRAPER_USERNAME"
+  password_env: "SCRAPER_PASSWORD"
+  state_file: "data/auth/playwright_state.json"
+
+selectors:
+  inputs: ".tab-pane input.form-control"
+  submit: ".tab-pane .col-xs-5 button"
+  login_success: "small.student-id-presenter-in-summary"
+
+crawler:
+  allowed_domains:
+    - "studier.nti.se"
+
+  allowed_url_patterns:
+    - "/studentcourses/3207194/exams"
+    - "/exam/"
+
+  allowed_start_title_contains:
+    - "Repetera"
+    - "Öva"
+    - "Obligatorisk uppgift"
+    - "Information"
+    - "Hur går det"
+
+  start_button_selector: ".exam-start-buttons button.btn-primary"
+  start_form_selector: "form.exam-start-buttons"
+  submit_blocklist_text_contains:
+    - "Lämna in uppgift"
+
+  denied_url_patterns:
+    - "/logout"
+    - "/profile"
+    - "/settings"
+    - "/calendar"
+    - "/studentcourses/3207194/teacher"
+    - "/studentcourses/3207194/literature"
+    - "/studentcourses/3207194/lessons"
+    - "/studentcourses/3207194/news"
+
+  blacklist_title_contains:
+    - "Examination"
+    - "Examination:"
+    - "Delprov"
+    - "Slutprov"
+    - "Prov"
+
+  blacklist_link_text_contains:
+    - "Examination"
+    - "Examination:"
+    - "Delprov"
+    - "Slutprov"
+    - "Prov"
+    - "Deadline"
+    - "Skrivtid"
+    - "Försenad"
+    - "Ej påbörjad"
+
+  blacklist_page_text_contains:
+    - "Deadline"
+    - "Skrivtid"
+    - "Försenad"
+    - "Ej påbörjad"
+
+storage:
+  raw_dir: "data/raw"
+  parsed_dir: "data/parsed"
+  manifest_dir: "data/manifests"

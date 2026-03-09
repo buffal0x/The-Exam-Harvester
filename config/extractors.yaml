@@ -1,0 +1,90 @@
+page_types:
+  exams_list:
+    match:
+      - "div.exam-partial-row"
+    container: "div.panel-body"
+    fields:
+      title:
+        selector: "h1"
+        type: "text"
+      exam_links:
+        selector: ".exam-partial-row a"
+        type: "links"
+      listing_html:
+        selector: "div.panel-body"
+        type: "html"
+    keep_tags:
+      - "div"
+      - "a"
+      - "h1"
+      - "h2"
+      - "h3"
+      - "h4"
+      - "p"
+      - "span"
+      - "strong"
+      - "em"
+
+  exam_preview:
+    match:
+      - ".exam-start-buttons button.btn-primary"
+    container: "div.panel-body"
+    fields:
+      title:
+        selector: "h1"
+        type: "text"
+      preview_html:
+        selector: "div.panel-body"
+        type: "html"
+      first_paragraph:
+        selector: ".ql-disabled p:nth-of-type(1)"
+        type: "text"
+      start_button_text:
+        selector: ".exam-start-buttons button.btn-primary"
+        type: "text"
+    keep_tags:
+      - "div"
+      - "ol"
+      - "ul"
+      - "li"
+      - "p"
+      - "strong"
+      - "em"
+      - "br"
+      - "button"
+      - "form"
+
+  exam_active:
+    match:
+      - "div.examQuestionContainer"
+      - "div[client-type]"
+    container: "div.col-sm-12.col-lg-10.col-lg-offset-1, div.col-lg-10"
+    fields:
+      title:
+        selector: "h1"
+        type: "text"
+      question_blocks:
+        selector: "div.examQuestionContainer"
+        type: "multi_question_blocks"
+      submit_button_text:
+        selector: "button.btn-lg"
+        type: "text"
+    keep_tags:
+      - "div"
+      - "p"
+      - "span"
+      - "strong"
+      - "em"
+      - "br"
+      - "ol"
+      - "ul"
+      - "li"
+      - "table"
+      - "tr"
+      - "td"
+      - "th"
+      - "code"
+      - "pre"
+      - "button"
+      - "h4"
+      - "small"

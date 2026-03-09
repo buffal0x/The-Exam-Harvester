@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Project runtime files and generated outputs
+logs/*
+storage/*
+data/auth/*
+data/raw/*
+data/parsed/*
+data/manifests/*
+data/index/*
+data/ordered/*
+
+# Keep directory placeholders only
+!logs/.gitkeep
+!storage/.gitkeep
+!data/auth/.gitkeep
+!data/raw/.gitkeep
+!data/parsed/.gitkeep
+!data/manifests/.gitkeep
+!data/index/.gitkeep
+!data/ordered/.gitkeep
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

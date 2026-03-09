@@ -1,0 +1,16 @@
+navigation:
+  actions:
+    - type: "wait_for"
+      selector: "main"
+
+    - type: "click_all"
+      selector: "a.lesson-link"
+
+    - type: "wait_for"
+      selector: ".lesson-content"
+
+    - type: "click_all"
+      selector: "a.assignment-link"
+
+    - type: "wait_for"
+      selector: ".assignment-body"
