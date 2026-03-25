@@ -1,4 +1,4 @@
-**<h1 align="center">Lesson Scraper</h1>**
+<h1 align="center">The Exam Harvester — CLI</h1>
 
 <p align="center">
   <img src="https://github.com/buffal0x/buffal0x.github.io/blob/main/img/github-exam-logo.png?raw=true" alt="project-image">
