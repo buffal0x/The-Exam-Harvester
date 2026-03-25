@@ -5,84 +5,36 @@
 </p>
 
 <p align="center">
-  A configuration-driven scraping pipeline for authenticated learning platforms.
+A structured academic scraping framework for authenticated course platforms.
 </p>
 
 <p align="center">
-  Built with Playwright, Crawlee, YAML-based extraction rules, deterministic storage, and clean Markdown / JSON export.
+Automates navigation, extracts assignments, and organizes everything into clean, structured study material.
 </p>
 
 <hr>
 
 <h2 align="center">⚙️ Current Project Status</h2>
 
-<p>
-The project currently supports:
-</p>
-
 <ul>
-  <li>Playwright-based login with saved authenticated session</li>
-  <li>Crawlee-powered traversal of allowed pages</li>
-  <li>Config-driven page detection and extraction</li>
-  <li>Structured output as raw HTML, metadata JSON, and Markdown</li>
-  <li>URL allow / deny filtering</li>
-  <li>Blacklist-based skipping of restricted pages</li>
-  <li>Per-course data storage and indexing</li>
-  <li>CLI dashboard / terminal UI for scraper progress</li>
+  <li>Playwright-based login with persistent session</li>
+  <li>Crawlee-powered browser crawling</li>
+  <li>Config-driven scraping via YAML</li>
+  <li>Automatic assignment detection and extraction</li>
+  <li>Blacklist system (prevents exams, deadlines, etc.)</li>
+  <li>Auto-start of assignments (non-invasive)</li>
+  <li>Structured output (HTML, JSON, Markdown)</li>
+  <li>Course-based storage system</li>
+  <li>Ordered dataset generation</li>
+  <li>CLI dashboard with progress UI</li>
 </ul>
-
-<hr>
-
-<h2 align="center">🧠 How It Works</h2>
-
-<h3>1. Login</h3>
-
-<p>
-The scraper uses Playwright to log into the platform and saves session state locally.
-</p>
-
-<pre><code>python -m app.main login</code></pre>
-
-<p>
-This creates an authenticated browser state file used by later scraping runs.
-</p>
-
-<h3>2. Crawl a Course</h3>
-
-<p>
-The crawler opens the selected course, follows allowed links, skips denied routes, and extracts matching pages using the configured selectors and page-type definitions.
-</p>
-
-<pre><code>python -m app.main sync
-python -m app.main sync 3207192
-python -m app.main sync https://studier.nti.se/studentcourses/3207192/exams</code></pre>
-
-<h3>3. Build Course Index</h3>
-
-<p>
-The scraper can build a course-level ordered index from the stored outputs, making it easier to inspect what has been scraped and in what order.
-</p>
-
-<pre><code>python -m app.main build-index
-python -m app.main build-index 3207192
-python -m app.main build-index https://studier.nti.se/studentcourses/3207192/exams</code></pre>
-
-<h3>4. Export Pending Questions</h3>
-
-<p>
-The project can export unfinished / pending questions into a structured Markdown study file.
-</p>
-
-<pre><code>python -m app.main export-pending
-python -m app.main export-pending 3207192
-python -m app.main export-pending https://studier.nti.se/studentcourses/3207192/exams</code></pre>
 
 <hr>
 
 <h2 align="center">📦 Installation</h2>
 
-<pre><code>git clone https://github.com/YOUR_USERNAME/lesson-scraper.git
-cd lesson-scraper
+<pre><code>git clone https://github.com/YOUR_USERNAME/The-Exam-Harvester.git
+cd The-Exam-Harvester
 
 python -m venv .venv
 source .venv/bin/activate
@@ -94,194 +46,158 @@ python -m playwright install chromium</code></pre>
 
 <h2 align="center">🔐 Environment Variables</h2>
 
-<p>
-Before using the scraper, export your credentials:
-</p>
-
 <pre><code>export SCRAPER_USERNAME="your_username"
 export SCRAPER_PASSWORD="your_password"</code></pre>
 
 <hr>
 
-<h2 align="center">🗂️ Configuration</h2>
-
-<h3><code>config/site.yaml</code></h3>
+<h2 align="center">📌 Course ID</h2>
 
 <p>
-Controls:
+Each course has a unique identifier (<code>COURSE_ID</code>) in the URL:
 </p>
 
-<ul>
-  <li>base URL</li>
-  <li>login URL</li>
-  <li>default course ID</li>
-  <li>allow / deny URL rules</li>
-  <li>blacklist rules</li>
-  <li>start-button selectors</li>
-  <li>storage layout</li>
-</ul>
-
-<h3><code>config/extractors.yaml</code></h3>
+<pre><code>https://studier.nti.se/studentcourses/&lt;COURSE_ID&gt;/exams</code></pre>
 
 <p>
-Defines:
+Example:
 </p>
 
-<ul>
-  <li>page types</li>
-  <li>match selectors</li>
-  <li>field extractors</li>
-  <li>HTML cleanup rules</li>
-  <li>content-to-Markdown conversion targets</li>
-</ul>
+<pre><code>https://studier.nti.se/studentcourses/1234567/exams</code></pre>
+
+<hr>
+
+<h2 align="center">▶️ Usage</h2>
+
+<h3>Login</h3>
+
+<pre><code>python -m app.main login</code></pre>
+
+<p>
+Stores authenticated session for reuse.
+</p>
+
+---
+
+<h3>Scrape Course</h3>
+
+<pre><code>python -m app.main sync
+python -m app.main sync &lt;COURSE_ID&gt;
+python -m app.main sync https://studier.nti.se/studentcourses/&lt;COURSE_ID&gt;/exams</code></pre>
+
+---
+
+<h3>Build Course Index</h3>
+
+<pre><code>python -m app.main build-index
+python -m app.main build-index &lt;COURSE_ID&gt;
+python -m app.main build-index https://studier.nti.se/studentcourses/&lt;COURSE_ID&gt;/exams</code></pre>
+
+---
+
+<h3>Export Pending Questions</h3>
+
+<pre><code>python -m app.main export-pending
+python -m app.main export-pending &lt;COURSE_ID&gt;
+python -m app.main export-pending https://studier.nti.se/studentcourses/&lt;COURSE_ID&gt;/exams</code></pre>
 
 <hr>
 
 <h2 align="center">📂 Output Structure</h2>
 
-<p>
-The scraper stores data in structured folders. In the current course-based setup, output is saved under:
-</p>
+<pre><code>data/courses/course_&lt;COURSE_ID&gt;/
 
-<pre><code>data/courses/course_&lt;COURSE_ID&gt;/</code></pre>
-
-<p>
-Typical structure:
-</p>
-
-<pre><code>data/courses/course_3207192/
 ├── raw/
 ├── parsed/
 ├── manifests/
 ├── index/
-└── ordered/</code></pre>
+└── ordered/
+</code></pre>
 
 <h3>Raw</h3>
 <ul>
-  <li><code>raw/&lt;hash&gt;/raw.html</code></li>
-  <li><code>raw/&lt;hash&gt;/screenshot.png</code> (if available)</li>
+  <li>Full HTML snapshots</li>
+  <li>Screenshots (optional)</li>
 </ul>
 
 <h3>Parsed</h3>
 <ul>
-  <li><code>parsed/&lt;hash&gt;/metadata.json</code></li>
-  <li><code>parsed/&lt;hash&gt;/content.md</code></li>
+  <li><code>content.md</code> — Clean questions</li>
+  <li><code>metadata.json</code> — Structured data</li>
 </ul>
 
 <h3>Manifest</h3>
 <ul>
-  <li><code>manifests/manifest.json</code></li>
+  <li>Full crawl metadata</li>
 </ul>
 
 <h3>Index</h3>
 <ul>
-  <li><code>index/course_index.json</code></li>
-  <li><code>index/course_index.md</code></li>
-  <li><code>index/pending_questions.md</code></li>
+  <li>Course overview</li>
+  <li>Status tracking</li>
+  <li>Pending questions export</li>
 </ul>
 
-<h3>Ordered View</h3>
+<h3>Ordered</h3>
 <ul>
-  <li><code>ordered/001-.../content.md</code></li>
-  <li><code>ordered/001-.../metadata.json</code></li>
-  <li><code>ordered/001-.../info.json</code></li>
-  <li><code>ordered/001-.../raw.html</code></li>
+  <li>Chronological assignment structure</li>
 </ul>
 
 <hr>
 
-<h2 align="center">🧾 Commands</h2>
-
-<h3>Login</h3>
-<pre><code>python -m app.main login</code></pre>
-
-<h3>Sync</h3>
-<pre><code>python -m app.main sync
-python -m app.main sync 3207192
-python -m app.main sync https://studier.nti.se/studentcourses/3207192/exams</code></pre>
-
-<h3>Build Index</h3>
-<pre><code>python -m app.main build-index
-python -m app.main build-index 3207192
-python -m app.main build-index https://studier.nti.se/studentcourses/3207192/exams</code></pre>
-
-<h3>Export Pending Questions</h3>
-<pre><code>python -m app.main export-pending
-python -m app.main export-pending 3207192
-python -m app.main export-pending https://studier.nti.se/studentcourses/3207192/exams</code></pre>
-
-<hr>
-
-<h2 align="center">🚦Status Model</h2>
-
-<p>
-The scraper distinguishes between normal processing, blocked pages, and actual failures.
-</p>
+<h2 align="center">🚦 Status System</h2>
 
 <ul>
-  <li><b>Processed</b> — page was handled</li>
-  <li><b>Saved</b> — page output was stored successfully</li>
-  <li><b>Blocked / Blacklisted</b> — page was intentionally skipped</li>
-  <li><b>Errors</b> — actual failures only, such as timeout, selector failure, bad URL, or code/runtime errors</li>
+  <li><b>Processed</b> — Page handled</li>
+  <li><b>Saved</b> — Successfully stored</li>
+  <li><b>Blacklisted</b> — Intentionally skipped</li>
+  <li><b>Errors</b> — Actual failures only</li>
 </ul>
-
-<p>
-Blacklisted pages are not considered errors.
-</p>
 
 <hr>
 
-<h2 align="center">🛡️ Current Safety / Filtering Logic</h2>
+<h2 align="center">🛡️ Safety & Logic</h2>
 
 <ul>
-  <li>Allowed domains and URL patterns restrict traversal</li>
-  <li>Denied patterns prevent navigation into unwanted areas</li>
-  <li>Blacklisted titles / link texts / page texts stop restricted pages</li>
-  <li>Assignments may be started automatically only when allowed by current rules</li>
-  <li>The scraper does not submit assignments automatically</li>
+  <li>Strict domain filtering</li>
+  <li>Allow / deny URL control</li>
+  <li>Blacklist for exams, deadlines, restricted content</li>
+  <li>Assignments are only started when safe</li>
+  <li>Never submits answers automatically</li>
 </ul>
 
 <hr>
 
-<h2 align="center">🎨 CLI Design</h2>
-
-<p>
-The current terminal interface includes:
-</p>
+<h2 align="center">🎨 CLI Interface</h2>
 
 <ul>
   <li>ASCII banner</li>
-  <li>session information</li>
-  <li>stats panel</li>
-  <li>progress panel</li>
-  <li>event log panel</li>
+  <li>Session info panel</li>
+  <li>Live progress bar</li>
+  <li>Stats tracking</li>
+  <li>Event log with warnings/errors</li>
 </ul>
-
-<p>
-The design is intended to provide a cleaner operator view while scraping.
-</p>
 
 <hr>
 
 <h2 align="center">📌 Notes</h2>
 
 <ul>
-  <li>Always keep your session file and credentials private</li>
-  <li>Do not commit authentication state to public repositories</li>
-  <li>Use <code>.gitignore</code> to exclude runtime data and secrets</li>
-  <li>The current architecture is designed so extraction can be extended without rewriting the whole crawler</li>
+  <li>Never commit credentials or session files</li>
+  <li>Use <code>.gitignore</code> properly</li>
+  <li>Designed for extensibility via YAML config</li>
 </ul>
 
 <hr>
 
-<h2 align="center">🧭 Planned Improvements</h2>
+<h2 align="center">🧭 Roadmap</h2>
 
 <ul>
-  <li>Hidden-answer probe for non-invasive answer discovery</li>
-  <li>Cleaner blocked vs error tracking in UI and metadata</li>
-  <li>More advanced multi-course management</li>
-  <li>Optional Flask / Web UI layer</li>
-  <li>Dockerized deployment</li>
+  <li>Hidden answer detection (non-invasive)</li>
+  <li>Improved CLI UI stability</li>
+  <li>Multi-platform support</li>
+  <li>Web UI (Flask)</li>
+  <li>Docker deployment</li>
 </ul>
 
 <hr>
