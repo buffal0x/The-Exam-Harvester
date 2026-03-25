@@ -2,7 +2,7 @@ site:
   name: "NTI Studier"
   base_url: "https://studier.nti.se"
   login_url: "https://studier.nti.se"
-  start_url: "https://studier.nti.se/studentcourses/3207194/exams"
+  default_course_id: "3207194"
 
 auth:
   username_env: "SCRAPER_USERNAME"
@@ -15,34 +15,17 @@ selectors:
   login_success: "small.student-id-presenter-in-summary"
 
 crawler:
-  allowed_domains:
-    - "studier.nti.se"
-
-  allowed_url_patterns:
-    - "/studentcourses/3207194/exams"
-    - "/exam/"
-
-  allowed_start_title_contains:
-    - "Repetera"
-    - "Öva"
-    - "Obligatorisk uppgift"
-    - "Information"
-    - "Hur går det"
-
-  start_button_selector: ".exam-start-buttons button.btn-primary"
-  start_form_selector: "form.exam-start-buttons"
-  submit_blocklist_text_contains:
-    - "Lämna in uppgift"
-
-  denied_url_patterns:
+  denied_global_patterns:
     - "/logout"
     - "/profile"
     - "/settings"
     - "/calendar"
-    - "/studentcourses/3207194/teacher"
-    - "/studentcourses/3207194/literature"
-    - "/studentcourses/3207194/lessons"
-    - "/studentcourses/3207194/news"
+
+  denied_course_tabs:
+    - "teacher"
+    - "literature"
+    - "lessons"
+    - "news"
 
   blacklist_title_contains:
     - "Examination"
@@ -60,7 +43,6 @@ crawler:
     - "Deadline"
     - "Skrivtid"
     - "Försenad"
-    - "Ej påbörjad"
 
   blacklist_page_text_contains:
     - "Deadline"
@@ -68,7 +50,17 @@ crawler:
     - "Försenad"
     - "Ej påbörjad"
 
+  allowed_start_title_contains:
+    - "Repetera"
+    - "Öva"
+    - "Obligatorisk uppgift"
+    - "Information"
+    - "Hur går det"
+
+  start_button_selector: ".exam-start-buttons button.btn-primary"
+  start_form_selector: "form.exam-start-buttons"
+  submit_blocklist_text_contains:
+    - "Lämna in uppgift"
+
 storage:
-  raw_dir: "data/raw"
-  parsed_dir: "data/parsed"
-  manifest_dir: "data/manifests"
+  base_dir: "data/courses"

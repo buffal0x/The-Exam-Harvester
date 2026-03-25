@@ -39,3 +39,9 @@ data/ordered/*
 Thumbs.db
 .vscode/
 .idea/
+
+.history/
+*.bak
+Git-ReadMe.md
+data/courses/
+data/auth/*.json

@@ -4,9 +4,7 @@ import json
 import re
 from pathlib import Path
 
-
-INDEX_PATH = Path("data/index/course_index.json")
-OUTPUT_PATH = Path("data/index/pending_questions.md")
+from app.course_context import build_course_context
 
 
 def load_json(path: Path) -> dict:
@@ -19,16 +17,6 @@ def read_text(path: Path) -> str:
 
 
 def extract_questions_from_content_md(content: str) -> list[str]:
-    """
-    Extract question blocks from content.md.
-
-    Expected format example:
-    ## Fråga 1
-    <text>
-
-    ## Fråga 2
-    <text>
-    """
     pattern = r"^##\s+Fråga\s+\d+\s*$"
     lines = content.splitlines()
 
@@ -57,11 +45,13 @@ def extract_questions_from_content_md(content: str) -> list[str]:
     return [q for q in questions if q.strip()]
 
 
-def build_pending_markdown(index_data: dict) -> str:
+def build_pending_markdown(index_data: dict, course_id: str) -> str:
     entries = index_data.get("entries", [])
 
     lines: list[str] = []
     lines.append("# Oklarade uppgifter")
+    lines.append("")
+    lines.append(f"**Course ID:** {course_id}")
     lines.append("")
 
     total_pending = 0
@@ -93,7 +83,6 @@ def build_pending_markdown(index_data: dict) -> str:
         lines.append("")
 
         for idx, question_block in enumerate(questions, start=1):
-            # Remove duplicated heading from source block if present
             cleaned_block = re.sub(
                 r"^##\s+Fråga\s+\d+\s*$",
                 "",
@@ -118,18 +107,21 @@ def build_pending_markdown(index_data: dict) -> str:
     return "\n".join(lines).strip() + "\n"
 
 
-def main() -> None:
-    if not INDEX_PATH.exists():
-        raise RuntimeError(f"Missing index file: {INDEX_PATH}")
+def main(course_ref: str | None = None) -> None:
+    context = build_course_context(course_ref)
+    course_id = context["course_id"]
+    storage = context["storage"]
 
-    index_data = load_json(INDEX_PATH)
-    output = build_pending_markdown(index_data)
+    index_path = Path(storage["index_dir"]) / "course_index.json"
+    output_path = Path(storage["index_dir"]) / "pending_questions.md"
 
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(output, encoding="utf-8")
+    if not index_path.exists():
+        raise RuntimeError(f"Missing index file: {index_path}")
 
-    print(f"Created: {OUTPUT_PATH}")
+    index_data = load_json(index_path)
+    output = build_pending_markdown(index_data, course_id)
 
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(output, encoding="utf-8")
 
-if __name__ == "__main__":
-    main()
+    print(f"Created: {output_path}")

@@ -6,15 +6,8 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+from app.course_context import build_course_context
 from app.storage import ensure_dir
-
-
-MANIFEST_PATH = Path("data/manifests/manifest.json")
-INDEX_DIR = Path("data/index")
-ORDERED_DIR = Path("data/ordered")
-
-OUTPUT_JSON = INDEX_DIR / "course_index.json"
-OUTPUT_MD = INDEX_DIR / "course_index.md"
 
 
 def load_json(path: Path) -> Any:
@@ -53,10 +46,11 @@ def extract_exam_id(url: str | None) -> str | None:
     return match.group(1) if match else None
 
 
-def extract_course_listing_entry(manifest: list[dict]) -> dict | None:
+def extract_course_listing_entry(manifest: list[dict], course_id: str) -> dict | None:
+    expected_suffix = f"/studentcourses/{course_id}/exams"
     for item in manifest:
         url = item.get("url", "")
-        if "/studentcourses/" in url and url.endswith("/exams"):
+        if url.endswith(expected_suffix):
             return item
     return None
 
@@ -108,11 +102,11 @@ def copy_if_exists(src: str | None, dst: Path) -> bool:
     return True
 
 
-def build_ordered_view(entries: list[dict]) -> None:
-    if ORDERED_DIR.exists():
-        shutil.rmtree(ORDERED_DIR)
+def build_ordered_view(entries: list[dict], ordered_dir: Path) -> None:
+    if ordered_dir.exists():
+        shutil.rmtree(ordered_dir)
 
-    ORDERED_DIR.mkdir(parents=True, exist_ok=True)
+    ordered_dir.mkdir(parents=True, exist_ok=True)
 
     summary_lines: list[str] = []
     summary_lines.append("# Ordered view")
@@ -122,7 +116,7 @@ def build_ordered_view(entries: list[dict]) -> None:
         order_str = str(entry["order"]).zfill(3)
         title_slug = slugify_title(entry["title"])
         folder_name = f"{order_str}-{title_slug}"
-        folder_path = ORDERED_DIR / folder_name
+        folder_path = ordered_dir / folder_name
         folder_path.mkdir(parents=True, exist_ok=True)
 
         copied_content = copy_if_exists(entry.get("content_path"), folder_path / "content.md")
@@ -157,19 +151,71 @@ def build_ordered_view(entries: list[dict]) -> None:
 
         summary_lines.append(f"- {order_str} | {entry['status']} | {entry['title']}")
 
-    write_text(ORDERED_DIR / "README.md", "\n".join(summary_lines) + "\n")
+    write_text(ordered_dir / "README.md", "\n".join(summary_lines) + "\n")
 
 
-def build_index() -> None:
-    if not MANIFEST_PATH.exists():
-        raise RuntimeError(f"Missing manifest file: {MANIFEST_PATH}")
+def build_markdown(data: dict) -> str:
+    summary = data["summary"]
+    entries = data["entries"]
 
-    ensure_dir(INDEX_DIR)
+    lines: list[str] = []
+    lines.append("# Kursindex")
+    lines.append("")
+    lines.append(f"**Course ID:** {data['course_id']}")
+    lines.append(f"**Källa:** {data['source_listing_url']}")
+    lines.append("")
+    lines.append("## Sammanfattning")
+    lines.append("")
+    lines.append(f"- Totalt: {summary['total']}")
+    lines.append(f"- Besvarade: {summary['answered']}")
+    lines.append(f"- Startade utan svar: {summary['started_no_answer']}")
+    lines.append(f"- Ej startade: {summary['not_started']}")
+    lines.append(f"- Blacklistade: {summary['blacklisted']}")
+    lines.append(f"- Saknas: {summary['missing']}")
+    lines.append("")
+    lines.append("## Uppgifter i kursordning")
+    lines.append("")
 
-    manifest = load_json(MANIFEST_PATH)
-    listing_entry = extract_course_listing_entry(manifest)
+    for entry in entries:
+        order = str(entry["order"]).zfill(3)
+        title = entry["title"]
+        status = entry["status"]
+        page_type = entry["page_type"]
+        url = entry["url"]
+
+        lines.append(f"- {order} | {status} | {page_type} | {title}")
+        lines.append(f"  - URL: {url}")
+
+        if entry.get("content_path"):
+            lines.append(f"  - content.md: `{entry['content_path']}`")
+        if entry.get("metadata_path"):
+            lines.append(f"  - metadata.json: `{entry['metadata_path']}`")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+def build_index(course_ref: str | None = None) -> None:
+    context = build_course_context(course_ref)
+    course_id = context["course_id"]
+    storage = context["storage"]
+
+    manifest_path = Path(storage["manifest_dir"]) / "manifest.json"
+    index_dir = Path(storage["index_dir"])
+    ordered_dir = Path(storage["ordered_dir"])
+
+    output_json = index_dir / "course_index.json"
+    output_md = index_dir / "course_index.md"
+
+    if not manifest_path.exists():
+        raise RuntimeError(f"Missing manifest file: {manifest_path}")
+
+    ensure_dir(index_dir)
+
+    manifest = load_json(manifest_path)
+    listing_entry = extract_course_listing_entry(manifest, course_id)
     if not listing_entry:
-        raise RuntimeError("Could not find exams listing page in manifest.")
+        raise RuntimeError(f"Could not find exams listing page for course {course_id} in manifest.")
 
     listing_metadata_path = Path(listing_entry["metadata"])
     if not listing_metadata_path.exists():
@@ -265,6 +311,7 @@ def build_index() -> None:
             )
 
     summary = {
+        "course_id": course_id,
         "total": len(ordered_entries),
         "answered": sum(1 for x in ordered_entries if x["status"] == "answered"),
         "started_no_answer": sum(1 for x in ordered_entries if x["status"] == "started_no_answer"),
@@ -274,20 +321,22 @@ def build_index() -> None:
     }
 
     output = {
+        "course_id": course_id,
         "source_listing_url": listing_entry.get("url"),
         "summary": summary,
         "entries": ordered_entries,
     }
 
-    write_json(OUTPUT_JSON, output)
-    write_text(OUTPUT_MD, build_markdown(output))
-    build_ordered_view(ordered_entries)
+    write_json(output_json, output)
+    write_text(output_md, build_markdown(output))
+    build_ordered_view(ordered_entries, ordered_dir)
 
-    print(f"Built course index: {OUTPUT_JSON}")
-    print(f"Built course index markdown: {OUTPUT_MD}")
-    print(f"Built ordered view: {ORDERED_DIR}")
+    print(f"Built course index: {output_json}")
+    print(f"Built course index markdown: {output_md}")
+    print(f"Built ordered view: {ordered_dir}")
     print(
         "Summary: "
+        f"course_id={course_id} "
         f"total={summary['total']} "
         f"answered={summary['answered']} "
         f"started_no_answer={summary['started_no_answer']} "
@@ -295,43 +344,3 @@ def build_index() -> None:
         f"blacklisted={summary['blacklisted']} "
         f"missing={summary['missing']}"
     )
-
-
-def build_markdown(data: dict) -> str:
-    summary = data["summary"]
-    entries = data["entries"]
-
-    lines: list[str] = []
-    lines.append("# Kursindex")
-    lines.append("")
-    lines.append(f"**Källa:** {data['source_listing_url']}")
-    lines.append("")
-    lines.append("## Sammanfattning")
-    lines.append("")
-    lines.append(f"- Totalt: {summary['total']}")
-    lines.append(f"- Besvarade: {summary['answered']}")
-    lines.append(f"- Startade utan svar: {summary['started_no_answer']}")
-    lines.append(f"- Ej startade: {summary['not_started']}")
-    lines.append(f"- Blacklistade: {summary['blacklisted']}")
-    lines.append(f"- Saknas: {summary['missing']}")
-    lines.append("")
-    lines.append("## Uppgifter i kursordning")
-    lines.append("")
-
-    for entry in entries:
-        order = str(entry["order"]).zfill(3)
-        title = entry["title"]
-        status = entry["status"]
-        page_type = entry["page_type"]
-        url = entry["url"]
-
-        lines.append(f"- {order} | {status} | {page_type} | {title}")
-        lines.append(f"  - URL: {url}")
-
-        if entry.get("content_path"):
-            lines.append(f"  - content.md: `{entry['content_path']}`")
-        if entry.get("metadata_path"):
-            lines.append(f"  - metadata.json: `{entry['metadata_path']}`")
-
-    lines.append("")
-    return "\n".join(lines)
