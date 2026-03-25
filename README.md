@@ -1,178 +1,287 @@
-<h1 align="center">The Exam Harvester — CLI</h1>
+<h1 align="center">Lesson Scraper</h1>
 
 <p align="center">
-  <img src="https://github.com/buffal0x/buffal0x.github.io/blob/main/img/github-exam-logo.png?raw=true" alt="project-image">
+  A configuration-driven scraping pipeline for authenticated learning platforms.
 </p>
 
 <p align="center">
-The Exam Harvester is a structured academic scraping framework designed to automate authenticated course platforms and transform complex assignment systems into clean, organized, and human-readable study material.
-<br><br>
-The system logs in securely, navigates course structures, extracts all questions and related content, and automatically organizes everything into logical academic order.
+  Built with Playwright, Crawlee, YAML-based extraction rules, deterministic storage, and clean Markdown/JSON export.
 </p>
 
 <hr>
 
-<h2 align="center">⚙️ Installation & Usage</h2>
+<h2 align="center">⚙️ Current Project Status</h2>
 
-<h3>📦 Requirements</h3>
+<p>
+The project currently supports:
+</p>
 
 <ul>
-  <li>Python 3.10+</li>
-  <li>Git</li>
-  <li>Linux / macOS / WSL (recommended)</li>
-  <li>Playwright Chromium browser</li>
-  <li>System dependencies for headless browsers</li>
+  <li>Playwright-based login with saved authenticated session</li>
+  <li>Crawlee-powered traversal of allowed pages</li>
+  <li>Config-driven page detection and extraction</li>
+  <li>Structured output as raw HTML, metadata JSON, and Markdown</li>
+  <li>URL allow/deny filtering</li>
+  <li>Blacklist-based skipping of restricted pages</li>
+  <li>Per-course data storage and indexing</li>
+  <li>CLI dashboard / terminal UI for scraper progress</li>
 </ul>
 
 <hr>
 
-<h3>🚀 Installation</h3>
+<h2 align="center">🧠 How It Works</h2>
 
-<pre><code># Clone repository
-git clone https://github.com/buffal0x/exam-harvester.git
-cd exam-harvester
-
-# Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Install browser engine
-python -m playwright install chromium
-</code></pre>
-
-<hr>
-
-<h3>🔐 Configuration</h3>
-
-<p>Target platform configuration is stored in:</p>
-
-<pre><code>config/site.yml</code></pre>
-
-<p>Credentials are provided securely via environment variables:</p>
-
-<pre><code>export SCRAPER_USERNAME="your_username"
-export SCRAPER_PASSWORD="your_password"
-</code></pre>
+<h3>1. Login</h3>
 
 <p>
-Authenticated sessions are stored locally and reused automatically.
+The scraper uses Playwright to log into the platform and saves session state locally.
 </p>
-
-<hr>
-
-<h3>▶️ Usage Workflow</h3>
-
-<h4>1️⃣ Login and Save Session</h4>
 
 <pre><code>python -m app.main login</code></pre>
 
 <p>
-Opens a visible browser, logs into the platform, and stores session state locally.
-This step only needs to be performed once per session.
+This creates an authenticated browser state file used by later scraping runs.
 </p>
 
-<h4>2️⃣ Scrape All Assignments</h4>
-
-<pre><code>python -m app.main sync</code></pre>
+<h3>2. Crawl a Course</h3>
 
 <p>
-The crawler:
+The crawler opens the selected course, follows allowed links, skips denied routes, and extracts matching pages using the configured selectors and page-type definitions.
 </p>
 
-<ul>
-  <li>Navigates course structure</li>
-  <li>Identifies assignments</li>
-  <li>Automatically starts non-restricted assignments when required</li>
-  <li>Skips blacklisted exams and deadline-restricted content</li>
-  <li>Extracts all questions from each assignment</li>
-</ul>
+<pre><code>python -m app.main sync
+python -m app.main sync 3207192
+python -m app.main sync https://studier.nti.se/studentcourses/3207192/exams</code></pre>
 
-<h4>3️⃣ Build Course Index & Ordered View</h4>
-
-<pre><code>python -m app.main build-index</code></pre>
-
-<p>This step organizes all scraped data into structured course order:</p>
-
-<ul>
-  <li>Assignments sorted chronologically</li>
-  <li>Status detection (answered / started / not started / blacklisted)</li>
-  <li>Human-readable course index</li>
-  <li>Ordered filesystem mirror for easy browsing</li>
-</ul>
-
-<h4>4️⃣ Export Unanswered Questions</h4>
-
-<pre><code>python -m app.main export-pending</code></pre>
+<h3>3. Build Course Index</h3>
 
 <p>
-Creates a structured study file containing only assignments that still require work.
-All questions are grouped per assignment and sorted by course order.
+The scraper can build a course-level ordered index from the stored outputs, making it easier to inspect what has been scraped and in what order.
+</p>
+
+<pre><code>python -m app.main build-index
+python -m app.main build-index 3207192
+python -m app.main build-index https://studier.nti.se/studentcourses/3207192/exams</code></pre>
+
+<h3>4. Export Pending Questions</h3>
+
+<p>
+The project can export unfinished / pending questions into a structured Markdown study file.
+</p>
+
+<pre><code>python -m app.main export-pending
+python -m app.main export-pending 3207192
+python -m app.main export-pending https://studier.nti.se/studentcourses/3207192/exams</code></pre>
+
+<hr>
+
+<h2 align="center">📦 Installation</h2>
+
+<pre><code>git clone https://github.com/YOUR_USERNAME/lesson-scraper.git
+cd lesson-scraper
+
+python -m venv .venv
+source .venv/bin/activate
+
+pip install -r requirements.txt
+python -m playwright install chromium</code></pre>
+
+<hr>
+
+<h2 align="center">🔐 Environment Variables</h2>
+
+<p>
+Before using the scraper, export your credentials:
+</p>
+
+<pre><code>export SCRAPER_USERNAME="your_username"
+export SCRAPER_PASSWORD="your_password"</code></pre>
+
+<hr>
+
+<h2 align="center">🗂️ Configuration</h2>
+
+<h3><code>config/site.yaml</code></h3>
+
+<p>
+Controls:
+</p>
+
+<ul>
+  <li>base URL</li>
+  <li>login URL</li>
+  <li>default course ID</li>
+  <li>allow / deny URL rules</li>
+  <li>blacklist rules</li>
+  <li>start-button selectors</li>
+  <li>storage layout</li>
+</ul>
+
+<h3><code>config/extractors.yaml</code></h3>
+
+<p>
+Defines:
+</p>
+
+<ul>
+  <li>page types</li>
+  <li>match selectors</li>
+  <li>field extractors</li>
+  <li>HTML cleanup rules</li>
+  <li>content-to-Markdown conversion targets</li>
+</ul>
+
+<hr>
+
+<h2 align="center">📂 Output Structure</h2>
+
+<p>
+The scraper stores data in structured folders. In the current course-based setup, output is saved under:
+</p>
+
+<pre><code>data/courses/course_&lt;COURSE_ID&gt;/</code></pre>
+
+<p>
+Typical structure:
+</p>
+
+<pre><code>data/courses/course_3207192/
+├── raw/
+├── parsed/
+├── manifests/
+├── index/
+└── ordered/</code></pre>
+
+<h3>Raw</h3>
+<ul>
+  <li><code>raw/&lt;hash&gt;/raw.html</code></li>
+  <li><code>raw/&lt;hash&gt;/screenshot.png</code> (if available)</li>
+</ul>
+
+<h3>Parsed</h3>
+<ul>
+  <li><code>parsed/&lt;hash&gt;/metadata.json</code></li>
+  <li><code>parsed/&lt;hash&gt;/content.md</code></li>
+</ul>
+
+<h3>Manifest</h3>
+<ul>
+  <li><code>manifests/manifest.json</code></li>
+</ul>
+
+<h3>Index</h3>
+<ul>
+  <li><code>index/course_index.json</code></li>
+  <li><code>index/course_index.md</code></li>
+  <li><code>index/pending_questions.md</code></li>
+</ul>
+
+<h3>Ordered View</h3>
+<ul>
+  <li><code>ordered/001-.../content.md</code></li>
+  <li><code>ordered/001-.../metadata.json</code></li>
+  <li><code>ordered/001-.../info.json</code></li>
+  <li><code>ordered/001-.../raw.html</code></li>
+</ul>
+
+<hr>
+
+<h2 align="center">🧾 Commands</h2>
+
+<h3>Login</h3>
+<pre><code>python -m app.main login</code></pre>
+
+<h3>Sync</h3>
+<pre><code>python -m app.main sync
+python -m app.main sync 3207192
+python -m app.main sync https://studier.nti.se/studentcourses/3207192/exams</code></pre>
+
+<h3>Build Index</h3>
+<pre><code>python -m app.main build-index
+python -m app.main build-index 3207192
+python -m app.main build-index https://studier.nti.se/studentcourses/3207192/exams</code></pre>
+
+<h3>Export Pending Questions</h3>
+<pre><code>python -m app.main export-pending
+python -m app.main export-pending 3207192
+python -m app.main export-pending https://studier.nti.se/studentcourses/3207192/exams</code></pre>
+
+<hr>
+
+<h2 align="center">🚦Status Model</h2>
+
+<p>
+The scraper distinguishes between normal processing, blocked pages, and actual failures.
+</p>
+
+<ul>
+  <li><b>Processed</b> — page was handled</li>
+  <li><b>Saved</b> — page output was stored successfully</li>
+  <li><b>Blocked / Blacklisted</b> — page was intentionally skipped</li>
+  <li><b>Errors</b> — actual failures only, such as timeout, selector failure, bad URL, or code/runtime errors</li>
+</ul>
+
+<p>
+Blacklisted pages are not considered errors.
 </p>
 
 <hr>
 
-<h3>📂 Output Structure</h3>
-
-<h4>Raw Storage</h4>
+<h2 align="center">🛡️ Current Safety / Filtering Logic</h2>
 
 <ul>
-  <li><b>data/raw/</b> — Original HTML snapshots</li>
-  <li><b>data/parsed/</b> — Extracted metadata and readable content</li>
-  <li><b>data/manifests/</b> — Crawl index and mapping</li>
-</ul>
-
-<h4>Course Organization</h4>
-
-<ul>
-  <li><b>data/index/course_index.json</b> — Machine-readable course structure</li>
-  <li><b>data/index/course_index.md</b> — Human-readable course overview</li>
-  <li><b>data/index/pending_questions.md</b> — Study file for unfinished work</li>
-</ul>
-
-<h4>Ordered Assignment View</h4>
-
-<ul>
-  <li><b>data/ordered/</b> — Chronological mirror of all assignments</li>
-  <li>Each folder contains:</li>
-  <ul>
-    <li>content.md — Clean extracted questions</li>
-    <li>metadata.json — Structured assignment data</li>
-    <li>raw.html — Original page snapshot</li>
-    <li>screenshot.png — Visual reference</li>
-    <li>info.json — Assignment status and metadata</li>
-  </ul>
+  <li>Allowed domains and URL patterns restrict traversal</li>
+  <li>Denied patterns prevent navigation into unwanted areas</li>
+  <li>Blacklisted titles / link texts / page texts stop restricted pages</li>
+  <li>Assignments may be started automatically only when allowed by current rules</li>
+  <li>The scraper does not submit assignments automatically</li>
 </ul>
 
 <hr>
 
-<h3>🧠 Intelligent Features</h3>
+<h2 align="center">🎨 CLI Design</h2>
+
+<p>
+The current terminal interface includes:
+</p>
 
 <ul>
-  <li>Session-aware authenticated crawling</li>
-  <li>Automatic detection of assignment states</li>
-  <li>Multi-question extraction per assignment</li>
-  <li>Blacklist protection for exams and deadlines</li>
-  <li>Chronological academic ordering</li>
-  <li>Human-friendly mirrored file structure</li>
-  <li>Structured exports for focused studying</li>
+  <li>ASCII banner</li>
+  <li>session information</li>
+  <li>stats panel</li>
+  <li>progress panel</li>
+  <li>event log panel</li>
+</ul>
+
+<p>
+The design is intended to provide a cleaner operator view while scraping.
+</p>
+
+<hr>
+
+<h2 align="center">📌 Notes</h2>
+
+<ul>
+  <li>Always keep your session file and credentials private</li>
+  <li>Do not commit authentication state to public repositories</li>
+  <li>Use <code>.gitignore</code> to exclude runtime data and secrets</li>
+  <li>The current architecture is designed so extraction can be extended without rewriting the whole crawler</li>
 </ul>
 
 <hr>
 
-<h3>🛡️ Safety Controls</h3>
+<h2 align="center">🧭 Planned Improvements</h2>
 
 <ul>
-  <li>Blacklist prevents restricted exam interaction</li>
-  <li>No automatic submissions</li>
-  <li>No modification of assignment answers</li>
-  <li>Read-only academic extraction</li>
+  <li>Hidden-answer probe for non-invasive answer discovery</li>
+  <li>Cleaner blocked vs error tracking in UI and metadata</li>
+  <li>More advanced multi-course management</li>
+  <li>Optional Flask / Web UI layer</li>
+  <li>Dockerized deployment</li>
 </ul>
 
 <hr>
 
 <h3 align="center">
-  Creator: <a href="https://www.github.com/buffal0x">@Buffal0x</a>
+  Creator: <a href="https://github.com/buffal0x">@Buffal0x</a>
 </h3>
