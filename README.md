@@ -1,11 +1,15 @@
 <h1 align="center">Lesson Scraper</h1>
 
 <p align="center">
+  <img src="https://github.com/buffal0x/buffal0x.github.io/blob/main/img/github-exam-logo.png?raw=true" alt="project-image">
+</p>
+
+<p align="center">
   A configuration-driven scraping pipeline for authenticated learning platforms.
 </p>
 
 <p align="center">
-  Built with Playwright, Crawlee, YAML-based extraction rules, deterministic storage, and clean Markdown/JSON export.
+  Built with Playwright, Crawlee, YAML-based extraction rules, deterministic storage, and clean Markdown / JSON export.
 </p>
 
 <hr>
@@ -21,7 +25,7 @@ The project currently supports:
   <li>Crawlee-powered traversal of allowed pages</li>
   <li>Config-driven page detection and extraction</li>
   <li>Structured output as raw HTML, metadata JSON, and Markdown</li>
-  <li>URL allow/deny filtering</li>
+  <li>URL allow / deny filtering</li>
   <li>Blacklist-based skipping of restricted pages</li>
   <li>Per-course data storage and indexing</li>
   <li>CLI dashboard / terminal UI for scraper progress</li>
